@@ -12,8 +12,10 @@
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
 
+#define topic "outopic"
+#define id 1
 
-int id=98,a1=36,a2=0;
+int a1=36,a2=0;
 bool tof=1;
 
 const char* ssid = "Campos";
@@ -22,31 +24,23 @@ const char* mqtt_server = "retropie.local";
 
 WiFiClient espClient;
 PubSubClient client(espClient);
-unsigned long lastMsg = 0;
-#define MSG_BUFFER_SIZE  (50)
+#define MSG_BUFFER_SIZE  (100)
 char msg[MSG_BUFFER_SIZE];
-int value = 0;
 
 String CrearJson();
 
 void reconnect() {
-  // Loop until we're reconnected
   while (!client.connected()) {
-    Serial.print("Attempting MQTT connection...");
-    // Create a random client ID
+    Serial.print("Intentando conectar con MQTT...");
     String clientId = "ESP8266Client-";
     clientId += String(random(0xffff), HEX);
-    // Attempt to connect
     if (client.connect(clientId.c_str())) {
-      Serial.println("connected");
-      // Once connected, publish an announcement...
-      client.publish("outTopic", "hello world");
-      // ... and resubscribe
+      Serial.println("conectado");
+      client.publish(topic, "hello world");
     } else {
-      Serial.print("failed, rc=");
+      Serial.print("Intento fallido, rc=");
       Serial.print(client.state());
-      Serial.println(" try again in 5 seconds");
-      // Wait 5 seconds before retrying
+      Serial.println(" re-intentando en 5 segundos");
       delay(5000);
     }
   }
@@ -55,9 +49,8 @@ void reconnect() {
 void setup_wifi() {
 
   delay(10);
-  // We start by connecting to a WiFi network
   Serial.println();
-  Serial.print("Connecting to ");
+  Serial.print("Conectando a... ");
   Serial.println(ssid);
 
   WiFi.mode(WIFI_STA);
@@ -71,8 +64,8 @@ void setup_wifi() {
   randomSeed(micros());
 
   Serial.println("");
-  Serial.println("WiFi connected");
-  Serial.println("IP address: ");
+  Serial.println("Conectado a WiFi");
+  Serial.println("Dirección IP: ");
   Serial.println(WiFi.localIP());
 }
 
@@ -89,11 +82,11 @@ void loop() {
   }
   client.loop();
 
-  CrearJson(124,54325,7654,false).toCharArray(msg,100);
-   client.publish("outopic",msg);
+  CrearJson(124,54325,7654,false).toCharArray(msg,MSG_BUFFER_SIZE);
+   client.publish(topic,msg);
    delay(5000);
-   CrearJson(124,525,54,true).toCharArray(msg,100);
-   client.publish("outopic",msg);
+   CrearJson(124,525,54,true).toCharArray(msg,MSG_BUFFER_SIZE);
+   client.publish(topic,msg);
    delay(5000);
 }
 
