@@ -15,6 +15,7 @@
 #define topic "outopic"
 #define id 1
 
+
 int a1=36,a2=0;
 bool tof=1;
 
@@ -22,12 +23,34 @@ const char* ssid = "Campos";
 const char* password = "perico15";
 const char* mqtt_server = "retropie.local";
 
+
 WiFiClient espClient;
 PubSubClient client(espClient);
 #define MSG_BUFFER_SIZE  (100)
 char msg[MSG_BUFFER_SIZE];
 
-String CrearJson();
+
+void setup_wifi() {
+  delay(10);
+  Serial.println();
+  Serial.print("Conectando a... ");
+  Serial.println(ssid);
+
+  WiFi.mode(WIFI_STA);
+  WiFi.begin(ssid, password);
+
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+
+  randomSeed(micros());
+
+  Serial.println("");
+  Serial.println("Conectado a la red WiFi");
+  Serial.println("Dirección IP: ");
+  Serial.println(WiFi.localIP());
+}
 
 void reconnect() {
   while (!client.connected()) {
@@ -46,28 +69,19 @@ void reconnect() {
   }
 }
 
-void setup_wifi() {
-
-  delay(10);
-  Serial.println();
-  Serial.print("Conectando a... ");
-  Serial.println(ssid);
-
-  WiFi.mode(WIFI_STA);
-  WiFi.begin(ssid, password);
-
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    Serial.print(".");
-  }
-
-  randomSeed(micros());
-
-  Serial.println("");
-  Serial.println("Conectado a WiFi");
-  Serial.println("Dirección IP: ");
-  Serial.println(WiFi.localIP());
+String CrearJson(int i,int b1,int b2,bool d){
+  String Json = "{\"id\":";
+ Json += String(i);
+ Json += ", \"a1\":";
+ Json += String(b1);
+ Json += ", \"a2\":";
+ Json += String(b2);
+ Json += ", \"bool\":";
+ Json += String(d);
+ Json += "}";
+ return Json;
 }
+
 
 void setup() {
   Serial.begin(74880);
@@ -88,17 +102,4 @@ void loop() {
    CrearJson(124,525,54,true).toCharArray(msg,MSG_BUFFER_SIZE);
    client.publish(topic,msg);
    delay(5000);
-}
-
-String CrearJson(int i,int b1,int b2,bool d){
-  String Json = "{\"id\":";
- Json += String(i);
- Json += ", \"a1\":";
- Json += String(b1);
- Json += ", \"a2\":";
- Json += String(b2);
- Json += ", \"bool\":";
- Json += String(d);
- Json += "}";
- return Json;
 }
