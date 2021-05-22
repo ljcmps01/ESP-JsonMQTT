@@ -17,32 +17,29 @@ int Analog[nDevices][2];
 bool Bool[nDevices];
 
 void setup() {
-  DynamicJsonDocument doc(1024);
+  StaticJsonDocument<256> doc;  
   
   Serial.begin(115200);
   Serial.println();
 
   // You can use a String as your JSON input.
   // WARNING: the string in the input  will be duplicated in the JsonDocument.
-  String input =
+  char input []=
       "{\"id\":1,\"a1\":1030,\"a2\":48,\"b\":true}";
   deserializeJson(doc, input);
-  JsonObject obj = doc.as<JsonObject>();
-
-  // You can use a String to get an element of a JsonObject
-  // No duplication is done.
-  int id = obj[String("id")];
+  
+  int id = doc["id"];
   Serial.println(id);
   
-  int a1 = obj[String("a1")];
+  int a1 = doc["a1"];
   Serial.println(a1);
   Analog[id][0]=a1;
   
-  int a2 = obj[String("a2")];
+  int a2 = doc["a2"];
   Serial.println(a2);
   Analog[id][1]=a2;
   
-  bool b= obj[String("b")];
+  bool b= doc["b"];
   Serial.println(b);
   Bool[id]=b;
 
