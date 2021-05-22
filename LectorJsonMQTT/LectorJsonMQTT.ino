@@ -10,13 +10,12 @@
 #define MSG_BUFFER_SIZE  (50)
 
 //Configurar estas variables con los datos de tu red WiFi
-const char* ssid = "........";
-const char* password = "........";
+const char* ssid = "Campos";
+const char* password = "perico15";
 
-const char* mqtt_server = "broker.mqtt-dashboard.com";
-String S_topic= "spain/nodeMCU/" + String(device_ID);
-const char* pubTopic = S_topic.c_str();
-const char* subTopic = "spain/nodeMCU/";
+const char* mqtt_server = "broker.hivemq.com";
+const char* pubTopic = "spain/nodeMCU";
+const char* subTopic = "spain/nodeMCU";
 
 WiFiClient espClient;
 PubSubClient client(espClient);
@@ -81,7 +80,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
   Serial.println(a2);
   Analog[id][1]=a2;
   
-  bool b= doc["b"];
+  bool b= doc["bool"];
   Serial.println(b);
   Bool[id]=b;
 
@@ -116,10 +115,8 @@ void reconnect() {
     // Attempt to connect
     if (client.connect(clientId.c_str())) {
       Serial.println("connected");
-      // Once connected, publish an announcement...
-      client.publish("outTopic", "hello world");
       // ... and resubscribe
-      client.subscribe("inTopic");
+      client.subscribe(subTopic);
     } else {
       Serial.print("failed, rc=");
       Serial.print(client.state());
