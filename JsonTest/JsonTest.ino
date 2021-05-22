@@ -9,22 +9,28 @@
  * La sumo al final de la string json
  * Repetir con todas las variables
  */
+#include <ESP8266WiFi.h>
+#include <PubSubClient.h>
+
 
 int id=98,a1=36,a2=0;
 bool tof=1;
 
 String CrearJson();
 
+char msg[600];
+
 void setup() {
   Serial.begin(74880);
- Serial.println(CrearJson(124,54325,7654,false));
- Serial.println(CrearJson(124,545,7214,0));
- Serial.println(CrearJson(124,5435,7586,1));
- Serial.println(CrearJson(124,64325,2564,true));
 }
 
 void loop() {
-
+   CrearJson(124,54325,7654,false).toCharArray(msg,100);
+   Serial.print(msg);
+   delay(5000);
+   CrearJson(124,525,54,true).toCharArray(msg,100);
+   Serial.print(msg);
+   delay(5000);
 }
 
 String CrearJson(int i,int b1,int b2,bool d){
