@@ -1,14 +1,5 @@
-// ArduinoJson - arduinojson.org
-// Copyright Benoit Blanchon 2014-2021
-// MIT License
-//
-// This example shows the different ways you can use String with ArduinoJson.
-//
-// Use String objects sparingly, because ArduinoJson duplicates them in the
-// JsonDocument. Prefer plain old char[], as they are more efficient in term of
-// code size, speed, and memory usage.
-//
-// https://arduinojson.org/v6/example/string/
+// Este programa contiene la funcion de callback que será llamada
+// Cada vez que la node MCU reciba un mensaje a travez de su suscripción
 
 #include <ArduinoJson.h>
 
@@ -17,17 +8,17 @@ int Analog[nDevices][2];
 bool Bool[nDevices];
 
 void setup() {
-  StaticJsonDocument<256> doc;  
-  
   Serial.begin(115200);
   Serial.println();
-
-  // You can use a String as your JSON input.
-  // WARNING: the string in the input  will be duplicated in the JsonDocument.
+//vector char que simularia el mensaje recibido de mqtt
   char input []=
       "{\"id\":1,\"a1\":1030,\"a2\":48,\"b\":true}";
+      
+//  Creo el JSON y tiro la informacion del input a el
+  StaticJsonDocument<256> doc;  
   deserializeJson(doc, input);
-  
+
+//  inicio el guardado de información
   int id = doc["id"];
   Serial.println(id);
   
@@ -42,9 +33,9 @@ void setup() {
   bool b= doc["b"];
   Serial.println(b);
   Bool[id]=b;
+//fin del guardado de informacion
 
-//  int t=Analog[id][0]+Analog[id][1];
-//  Serial.println(t);
+//Impresion del contenido de los vectores
   Serial.println("Analogos");
   for(int i=0;i<2;i++){
     for(int j=0;j<10;j++){
@@ -61,17 +52,4 @@ void setup() {
 }
 
 void loop() {
-  // not used in this example
 }
-
-// See also
-// --------
-//
-// https://arduinojson.org/ contains the documentation for all the functions
-// used above. It also includes an FAQ that will help you solve any problem.
-//
-// The book "Mastering ArduinoJson" contains a quick C++ course that explains
-// how your microcontroller stores strings in memory. On several occasions, it
-// shows how you can avoid String in your program.
-// Learn more at https://arduinojson.org/book/
-// Use the coupon code TWENTY for a 20% discount ❤❤❤❤❤
