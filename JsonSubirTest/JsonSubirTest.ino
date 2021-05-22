@@ -12,28 +12,26 @@
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
 
-#define topic "outopic"
-#define id 1
-
+#define device_ID 1
+#define MSG_BUFFER_SIZE  (100)
 
 int a1=36,a2=0;
 bool tof=1;
 
 const char* ssid = "Campos";
 const char* password = "perico15";
-const char* mqtt_server = "retropie.local";
-
+const char* mqtt_server = "broker.hivemq.com";
+String S_topic= "spain/nodeMCU";
+const char* pubTopic = S_topic.c_str();
+char msg[MSG_BUFFER_SIZE];
 
 WiFiClient espClient;
 PubSubClient client(espClient);
-#define MSG_BUFFER_SIZE  (100)
-char msg[MSG_BUFFER_SIZE];
-
 
 void setup_wifi() {
   delay(10);
   Serial.println();
-  Serial.print("Conectando a... ");
+  Serial.print("Conectando a la red ");
   Serial.println(ssid);
 
   WiFi.mode(WIFI_STA);
@@ -54,12 +52,12 @@ void setup_wifi() {
 
 void reconnect() {
   while (!client.connected()) {
-    Serial.print("Intentando conectar con MQTT...");
+    Serial.println("Intentando conectar con MQTT...");
     String clientId = "ESP8266Client-";
     clientId += String(random(0xffff), HEX);
     if (client.connect(clientId.c_str())) {
       Serial.println("conectado");
-      client.publish(topic, "hello world");
+      client.publish(pubTopic, "hello world");
     } else {
       Serial.print("Intento fallido, rc=");
       Serial.print(client.state());
@@ -88,6 +86,7 @@ void setup() {
 
   setup_wifi();
   client.setServer(mqtt_server, 1883);
+  Serial.println(pubTopic);
 }
 
 void loop() {
@@ -96,10 +95,12 @@ void loop() {
   }
   client.loop();
 
-  CrearJson(124,54325,7654,false).toCharArray(msg,MSG_BUFFER_SIZE);
-   client.publish(topic,msg);
+  CrearJson(device_ID,random(1024),random(1024),false).toCharArray(msg,MSG_BUFFER_SIZE);
+   client.publish(pubTopic,msg);
+   Serial.println(msg);
    delay(5000);
-   CrearJson(124,525,54,true).toCharArray(msg,MSG_BUFFER_SIZE);
-   client.publish(topic,msg);
+   CrearJson(random(10),random(1024),random(1024),true).toCharArray(msg,MSG_BUFFER_SIZE);
+   client.publish(pubTopic,msg);
+   Serial.println(msg);
    delay(5000);
 }
