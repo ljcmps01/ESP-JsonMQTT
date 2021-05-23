@@ -12,14 +12,15 @@
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
 
+
 #define device_ID 1
 #define MSG_BUFFER_SIZE  (100)
 
 int a1=36,a2=0;
 bool tof=1;
 
-const char* ssid = "Campos";
-const char* password = "perico15";
+const char* ssid = "...";
+const char* password = "...";
 const char* mqtt_server = "broker.hivemq.com";
 String S_topic= "spain/nodeMCU";
 const char* pubTopic = S_topic.c_str();
