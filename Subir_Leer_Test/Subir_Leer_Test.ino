@@ -71,26 +71,27 @@ void callback(char* topic, byte* payload, unsigned int length) {
   deserializeJson(doc, payload, length);
 
   int id = doc["id"];
-  Serial.println(id);
+  Serial.println("id #"+String(id));
   
   int a1 = doc["a1"];
-  Serial.println(a1);
+  Serial.println("Analogica 1: "+String(a1));
   Analog[id][0]=a1;
   
   int a2 = doc["a2"];
-  Serial.println(a2);
+  Serial.println("Analogica 2: "+String(a2));
   Analog[id][1]=a2;
   
   bool b= doc["bool"];
-  Serial.println(b);
+  Serial.println("Booleana: "+String(b)+"\n");
   Bool[id]=b;
 
-  printInfo();
+  printInfo(id);
 }
 
-void printInfo(){
+void printInfo(int id){
   //Impresion del contenido de los vectores
-  Serial.println("Data obtenida");
+  Serial.print("Data obtenida de la NodeMCU #");
+  Serial.println(id);
   Serial.println("Analogos");
   for(int i=0;i<2;i++){
     for(int j=0;j<10;j++){
@@ -104,6 +105,7 @@ void printInfo(){
       Serial.print(Bool[j]);
       Serial.print(" ");
   }
+  Serial.println("\n\n");
 }
 
 void reconnect() {
@@ -157,10 +159,8 @@ void loop() {
   }
   client.loop();
 
-  CrearJson(device_ID,random(1024),random(1024),false).toCharArray(msg,MSG_BUFFER_SIZE);
+  CrearJson(device_ID,random(1024),random(1024),random(10)>5?true:false).toCharArray(msg,MSG_BUFFER_SIZE);
    client.publish(pubTopic,msg);
-   delay(5000);
-   CrearJson(random(10),random(1024),random(1024),true).toCharArray(msg,MSG_BUFFER_SIZE);
-   client.publish(pubTopic,msg);
+   Serial.print("");
    delay(5000);
 }
