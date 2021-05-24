@@ -1,3 +1,8 @@
+/* Nombres de variables utilizados: nDevices, device_ID, MSG_BUFFER_SIZE, TIEMPO, ssid, password, mqtt_server, pubTopic, subTopic, msg, 
+ *                                  value, A1, A2, tof, Analog[][], Bool[][], setup_wifi, callback, topic, payload, i, doc[], id, a1, a2, 
+ *                                  b, printInfo, j, clientId, CrearJson, x, b1, b2, d, Json.
+ */
+
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
 #include <ArduinoJson.h>
@@ -5,9 +10,11 @@
 //Numero maximo de dispositivos
 #define nDevices 10
 //Identificador de dispositivo
-#define device_ID 2
+#define device_ID 0
 //Longitus max del mensaje a enviar
 #define MSG_BUFFER_SIZE  (50)
+//Tiempo de espera entre cada envio de datos
+#define TIEMPO 2000
 
 //Configurar estas variables con los datos de tu red WiFi
 const char* ssid = "...";
@@ -162,5 +169,5 @@ void loop() {
   CrearJson(device_ID,random(1024),random(1024),random(10)>5?true:false).toCharArray(msg,MSG_BUFFER_SIZE);
    client.publish(pubTopic,msg);
    Serial.print("");
-   delay(5000);
+   delay(TIEMPO);
 }
