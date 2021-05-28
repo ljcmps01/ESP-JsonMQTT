@@ -16,12 +16,12 @@
 //Longitud max del mensaje a enviar
 #define MSG_BUFFER_SIZE  (50)
 
-//Tiempo de espera entre cada envio de datos
+//Tiempo de espera (en milisegundos) entre cada envio de datos
 #define TIEMPO 2000
 
 //Configurar estas variables con los datos de tu red WiFi
-const char* ssid = "Campos";
-const char* password = "perico15";
+const char* ssid = "...";
+const char* password = "...";
 
 //datos del broker mqtt
 const char* mqtt_server = "broker.hivemq.com";
@@ -44,6 +44,50 @@ bool Bool[nDevices];
 //                 id
 //Var booleana [][][][][]
 
+//Funciones conexion
+void setup_wifi();
+void callback(char* topic, byte* payload, unsigned int length);
+void reconnect();
+
+//Funciones de informacion
+void printInfo(); 
+String CrearJson(int id,int a1,int a2,bool b);
+//**IMPORTANTE**: para mandar la informacion hay que modificar los parametros que se pasan en el loop
+//Las variables que hay ahora en el loop son a modo de prueba e imprimer numeros aleatorios
+//int id se modifica desde el #define device_ID
+//int a1 y a2 son las variables analogicas 1 y 2 respectivamente
+//bool b es la variable booleana
+
+
+
+void setup() {
+  Serial.begin(115200);
+  setup_wifi();                         //Me conecto a WiFi
+  client.setServer(mqtt_server, 1883);  //Configuro el server MQTT
+  client.setCallback(callback);         //Configuro la funcion a la que llamar cuando llega info
+}
+
+void loop() {
+
+  if (!client.connected()) {            //Chequeo que el dispositivo este conectado a MQTT
+    reconnect();
+  }
+  client.loop();
+
+  //Preparo la informacion para poder enviarla
+  //Modificar los parametros random(1024), ambos, y random(10)>5?true:false con los datos analogicos y booleano respectivamente
+  CrearJson(device_ID,random(1024),random(1024),random(10)>5?true:false).toCharArray(msg,MSG_BUFFER_SIZE);
+   client.publish(pubTopic,msg);        //Publico el mensaje
+   Serial.print("");
+   delay(TIEMPO);
+}
+
+
+//////////////////////////////////////////
+//***FUNCIONES CONFIGURACION INTERNET***//
+//////////////////////////////////////////
+
+//Conexion a red WiFi
 void setup_wifi() {
   delay(10);
   Serial.println();
@@ -66,6 +110,7 @@ void setup_wifi() {
   Serial.println(WiFi.localIP());
 }
 
+//Respuesta del programa cuando recibe informacion de mqtt
 void callback(char* topic, byte* payload, unsigned int length) {
   Serial.print("Message recibido [");
   Serial.print(topic);
@@ -93,28 +138,10 @@ void callback(char* topic, byte* payload, unsigned int length) {
   Serial.println("Booleana: "+String(b)+"\n");
   Bool[id]=b;
 
-  printInfo(id);
+  printInfo();
 }
 
-void printInfo(int id){
-  //Impresion del contenido de los vectores
-  Serial.println("Vector de información de las NodeMCU");
-  Serial.println("Analogos");
-  for(int i=0;i<2;i++){
-    for(int j=0;j<10;j++){
-      Serial.print(Analog[j][i]);
-      Serial.print(" ");
-    }
-    Serial.println();
-  }
-  Serial.println("Booleanos: ");
-  for(int j=0;j<10;j++){
-      Serial.print(Bool[j]);
-      Serial.print(" ");
-  }
-  Serial.println("\n\n");
-}
-
+//Función de conexion y reconexion a MQTT + suscripción
 void reconnect() {
   // Loop until we're reconnected
   while (!client.connected()) {
@@ -137,35 +164,41 @@ void reconnect() {
   }
 }
 
-String CrearJson(int x,int b1,int b2,bool d){
+
+//////////////////////////////////////////
+//*******FUNCIONES DE INFORMACION*******//
+//////////////////////////////////////////
+
+//Imprime los vectores de información 
+void printInfo(){
+  //Impresion del contenido de los vectores
+  Serial.println("Vector de información de las NodeMCU");
+  Serial.println("Analogos");
+  for(int i=0;i<2;i++){
+    for(int j=0;j<10;j++){
+      Serial.print(Analog[j][i]);
+      Serial.print(" ");
+    }
+    Serial.println();
+  }
+  Serial.println("Booleanos: ");
+  for(int j=0;j<10;j++){
+      Serial.print(Bool[j]);
+      Serial.print(" ");
+  }
+  Serial.println("\n\n");
+}
+
+//Funcion que prepara la información para enviarla a MQTT
+String CrearJson(int id,int a1,int a2,bool b){
   String Json = "{\"id\":";
- Json += String(x);
+ Json += String(id);
  Json += ", \"a1\":";
- Json += String(b1);
+ Json += String(a1);
  Json += ", \"a2\":";
- Json += String(b2);
+ Json += String(a2);
  Json += ", \"bool\":";
- Json += String(d);
+ Json += String(b);
  Json += "}";
  return Json;
-}
-
-void setup() {
-  Serial.begin(115200);
-  setup_wifi();
-  client.setServer(mqtt_server, 1883);
-  client.setCallback(callback);
-}
-
-void loop() {
-
-  if (!client.connected()) {
-    reconnect();
-  }
-  client.loop();
-
-  CrearJson(device_ID,random(1024),random(1024),random(10)>5?true:false).toCharArray(msg,MSG_BUFFER_SIZE);
-   client.publish(pubTopic,msg);
-   Serial.print("");
-   delay(TIEMPO);
 }
