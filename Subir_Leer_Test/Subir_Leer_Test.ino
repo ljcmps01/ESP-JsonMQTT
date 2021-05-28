@@ -1,5 +1,5 @@
 /* Nombres de variables utilizados: nDevices, device_ID, MSG_BUFFER_SIZE, TIEMPO, ssid, password, mqtt_server, pubTopic, subTopic, msg, 
- *                                  value, A1, A2, tof, Analog[][], Bool[][], setup_wifi, callback, topic, payload, i, doc[], id, a1, a2, 
+ *                                  value, Analog[][], Bool[], setup_wifi, callback, topic, payload, i, doc[], id, a1, a2, 
  *                                  b, printInfo, j, clientId, CrearJson, x, b1, b2, d, Json.
  */
 
@@ -9,17 +9,21 @@
 
 //Numero maximo de dispositivos
 #define nDevices 10
-//Identificador de dispositivo
-#define device_ID 0
-//Longitus max del mensaje a enviar
+
+//Identificador de dispositivo (cambiar para cada NodeMCU)
+#define device_ID 2
+
+//Longitud max del mensaje a enviar
 #define MSG_BUFFER_SIZE  (50)
+
 //Tiempo de espera entre cada envio de datos
 #define TIEMPO 2000
 
 //Configurar estas variables con los datos de tu red WiFi
-const char* ssid = "...";
-const char* password = "...";
+const char* ssid = "Campos";
+const char* password = "perico15";
 
+//datos del broker mqtt
 const char* mqtt_server = "broker.hivemq.com";
 const char* pubTopic = "spain/nodeMCU";
 const char* subTopic = "spain/nodeMCU";
@@ -29,9 +33,6 @@ PubSubClient client(espClient);
 
 char msg[MSG_BUFFER_SIZE];
 int value = 0;
-
-int A1=36,A2=0;
-bool tof=1;
 
 //Vector donde se guardaran las variables
 int Analog[nDevices][2];
@@ -66,7 +67,7 @@ void setup_wifi() {
 }
 
 void callback(char* topic, byte* payload, unsigned int length) {
-  Serial.print("Message arrived [");
+  Serial.print("Message recibido [");
   Serial.print(topic);
   Serial.print("] ");
   for (int i = 0; i < length; i++) {
@@ -78,7 +79,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
   deserializeJson(doc, payload, length);
 
   int id = doc["id"];
-  Serial.println("id #"+String(id));
+  Serial.println("Data obtenida del id #"+String(id));
   
   int a1 = doc["a1"];
   Serial.println("Analogica 1: "+String(a1));
@@ -97,8 +98,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
 
 void printInfo(int id){
   //Impresion del contenido de los vectores
-  Serial.print("Data obtenida de la NodeMCU #");
-  Serial.println(id);
+  Serial.println("Vector de información de las NodeMCU");
   Serial.println("Analogos");
   for(int i=0;i<2;i++){
     for(int j=0;j<10;j++){
@@ -125,7 +125,6 @@ void reconnect() {
     // Attempt to connect
     if (client.connect(clientId.c_str())) {
       Serial.println("conectado");
-      client.publish(pubTopic, "hello world");
       // ... and resubscribe
       client.subscribe(subTopic);
     } else {
@@ -152,7 +151,6 @@ String CrearJson(int x,int b1,int b2,bool d){
 }
 
 void setup() {
-  pinMode(BUILTIN_LED, OUTPUT);     // Initialize the BUILTIN_LED pin as an output
   Serial.begin(115200);
   setup_wifi();
   client.setServer(mqtt_server, 1883);
